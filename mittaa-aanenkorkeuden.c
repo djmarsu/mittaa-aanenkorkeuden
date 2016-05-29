@@ -12,7 +12,7 @@ float *lpf(float *buf) {
   static float out[BUFLEN];
   // initialize array
   out[0] = buf[0];
-  
+
   for (int i = 1; i < BUFLEN; i++) {
     out[i] = buf[i] + buf[i - 1];
   }
@@ -24,7 +24,7 @@ int pitchdetect(float *buf) {
   // count of zero crossings
   int count = 0;
 
-  // buffer's length in seconds    
+  // buffer's length in seconds
   float secs = (float) BUFLEN / SAMPLERATE;
 
   for (int i = 1; i < BUFLEN; i++) {
@@ -35,7 +35,7 @@ int pitchdetect(float *buf) {
 
   // how many cycles
   float cyclecount = count / 2;
-  
+
   return round(cyclecount / secs);
 }
 
@@ -57,8 +57,8 @@ static void convert_to_text(SNDFILE *file) {
 
 int main (int argc, char **argv) {
   char *filename;
-  SNDFILE	*file = NULL;
-  SF_INFO	sfinfo;
+  SNDFILE *file = NULL;
+  SF_INFO sfinfo;
 
   if (argc != 2) {
     printf("usage: mittaa-aanenkorkeuden file.wav\n");
