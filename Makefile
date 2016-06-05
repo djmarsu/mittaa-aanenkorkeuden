@@ -1,6 +1,6 @@
 NAME = mittaa-aanenkorkeuden
 
-SRC = ${NAME}.c hw.c
+SRC = ${NAME}.c
 
 OBJ = ${SRC:.c=.o}
 

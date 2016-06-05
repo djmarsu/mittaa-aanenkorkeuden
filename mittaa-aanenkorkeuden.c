@@ -6,6 +6,8 @@
 #include <math.h>
 #include <alsa/asoundlib.h>
 
+#include <hw.h>
+
 #define SAMPLERATE 44100
 // 5 guesses in one second
 #define	BUFLEN 8820
@@ -160,8 +162,6 @@ int main (int argc, char **argv) {
     usage();
   }
 
-  int buffer_frames = BUFLEN; // frame = sekä vasen että oikee kanava
-
   if (use_wav == 0) {
     // read file to float buffer
     // TODO: only works with mono files
@@ -172,17 +172,18 @@ int main (int argc, char **argv) {
     }
     sf_close(file);
   } else if (use_soundcard == 0) {
-    // catch ctrl+c to quit program nicely
-    signal(SIGINT, int_handler);
-
     // gotta allocate twice as much for stereo
     size_t size = BUFLEN * 2;
-    // vai uint16_t  
     int16_t buffer[size];
     memset(buffer, 0, size * sizeof(buffer[0]));
-
+    
+    int buffer_frames = BUFLEN; // frame = sekä vasen että oikee kanava
+    
+    // catch ctrl+c to quit program nicely
+    signal(SIGINT, int_handler);
+    
     while (running) { 
-      buffer_from_soundcard(&buffer, buffer_frames);
+      buffer_from_soundcard(buffer, buffer_frames);
       for(int k = 0; k < buffer_frames; k++) {
         // pick every other sample because it is stereo
         float s = (float)buffer[k * 2] / INT16_MAX;
