@@ -90,4 +90,3 @@ void buffer_from_soundcard(int16_t *buffer, int buffer_frames) {
     exit(1);
   }
 }
-
