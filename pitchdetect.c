@@ -1,14 +1,16 @@
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include "config.h"
 
 // simple low pass filter algorithm
 float *lpf(float *buf) {
-  static float out[BUFLEN];
+  float *out = buf;
+  //float out[buflen] = {0.0};
   // initialize array
   out[0] = buf[0];
 
-  for (int i = 1; i < BUFLEN; i++) {
+  for (int i = 1; i < buflen; i++) {
     out[i] = buf[i] + buf[i - 1];
   }
 
@@ -24,41 +26,29 @@ int pitchdetect(float *buf) {
   int count = 0;
 
   // buffer's length in seconds
-  float secs = (float) BUFLEN / SAMPLERATE;
+  float secs = (float) buflen / samplerate;
 
   // check if there is enough signal
   float rms = 0;
-  for (int j = 0; j < BUFLEN; j++) {
+  for (int j = 0; j < buflen; j++) {
     rms += buf[j] * buf[j];
   }
-  rms = sqrt(rms / BUFLEN);
+  rms = sqrt(rms / buflen);
   if (rms < 0.01)
     return -1;
-/*
+
   int c = 0;
   int prev = 0;
   
-  for (int j = 0; j < BUFLEN; j++) {
+  for (int j = 0; j < buflen; j++) {
     // tapa 2
     int s = sign(buf[j]);
     if (s != prev)
       c++;
     prev = s;
   }
-*/
 
-  for (int i = 1; i < BUFLEN; i++) {
-    // tapa 1
-    if (buf[i] * buf[i - 1] < 0){
-      count++;
-    }
-  }
-
-  //printf("%f --\n", c/2.0/secs);
-  //printf("%f --\n", count/2.0/secs);
-  
-  // how many cycles
-  float cyclecount = count / 2;
+  float cyclecount = c / 2;
 
   return round(cyclecount / secs);
 }

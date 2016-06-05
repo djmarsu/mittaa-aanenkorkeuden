@@ -24,7 +24,7 @@ int main (int argc, char **argv) {
   SF_INFO sfinfo;
   char *filename;
 
-  float buf[BUFLEN];
+  float buf[buflen];
   int count;
   
   int use_wav = -1;
@@ -53,7 +53,7 @@ int main (int argc, char **argv) {
   if (use_wav == 0) {
     // read file to float buffer
     // TODO: only works with mono files
-    while ((count = sf_readf_float(file, buf, BUFLEN)) == BUFLEN) {
+    while ((count = sf_readf_float(file, buf, buflen)) == buflen) {
       // apply simple lowpass filtering to buf
       float *buf2 = lpf(buf);
       printf("%d\n", pitchdetect(buf2));
@@ -61,11 +61,11 @@ int main (int argc, char **argv) {
     sf_close(file);
   } else if (use_soundcard == 0) {
     // gotta allocate twice as much for stereo
-    size_t size = BUFLEN * 2;
+    size_t size = buflen * 2;
     int16_t buffer[size];
     memset(buffer, 0, size * sizeof(buffer[0]));
     
-    int buffer_frames = BUFLEN; // frame = sekä vasen että oikee kanava
+    int buffer_frames = buflen; // frame = sekä vasen että oikee kanava
     
     // catch ctrl+c to quit program nicely
     signal(SIGINT, int_handler);
