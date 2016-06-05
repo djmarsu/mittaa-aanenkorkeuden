@@ -196,7 +196,8 @@ int main (int argc, char **argv) {
 
   // gotta allocate twice as much for stereo
   size_t size = BUFLEN*2;
-  uint16_t buffer[size];
+  // vai uint16_t  
+  int16_t buffer[size];
 
   memset(buffer, 0, size * sizeof(buffer[0]));
   
@@ -242,23 +243,21 @@ int main (int argc, char **argv) {
     }
     sf_close(file);
   } else if (use_soundcard == 0) {
-    if ((err = snd_pcm_readi(handle, buffer, buffer_frames)) != buffer_frames) {
-      fprintf(stderr, "read from audio interface failed (%s)\n",
-               snd_strerror (err));
-      exit(1);
-    }
-  
     signal(SIGINT, int_handler);
     while (running) { 
+      if ((err = snd_pcm_readi(handle, buffer, buffer_frames)) != buffer_frames) {
+        fprintf(stderr, "read from audio interface failed (%s)\n",
+                 snd_strerror (err));
+        exit(1);
+      }
+  
       for(int k = 0; k < buffer_frames; k++) {
         // pick every other sample because it is stereo
         float s = (float)buffer[k * 2]/INT16_MAX;
         flo[k] = s;
-        //printf("%f %f\n", s);
       }
-      //float *buf2 = lpf(flo);
-      //printf("piste %d\n", pitchdetect(buf2)); 
-      printf("piste %d\n", pitchdetect(flo)); 
+      float *buf2 = lpf(flo);
+      printf("piste %d\n", pitchdetect(buf2)); 
     }
   }
 
