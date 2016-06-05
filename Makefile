@@ -5,7 +5,7 @@ SRC = ${NAME}.c
 OBJ = ${SRC:.c=.o}
 
 INCS = -I. -I/usr/include
-LIBS = -L/usr/lib -lsndfile -lm
+LIBS = -L/usr/lib -lsndfile -lasound -lm
 
 CFLAGS   = -g -std=c99 -pedantic -Wall ${INCS}
 LDFLAGS  = -g ${LIBS}
