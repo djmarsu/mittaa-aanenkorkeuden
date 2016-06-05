@@ -1,4 +1,3 @@
-#define SAMPLERATE 44100
-
+static const int samplerate = 44100;
 // 5 guesses in one second
-#define BUFLEN 8820
+static const size_t buflen = 8820;

@@ -52,8 +52,18 @@ int main (int argc, char **argv) {
 
   if (use_wav == 0) {
     // read file to float buffer
-    // TODO: only works with mono files
-    while ((count = sf_readf_float(file, buf, buflen)) == buflen) {
+    size_t size = buflen * sfinfo.channels;
+    float buffer[size];
+    if (sfinfo.frames < buflen) {
+      fprintf(stderr, "wav file was too short\n");
+      return 1;
+    }
+
+    while ((count = sf_readf_float(file, buffer, buflen)) == buflen) {
+      for(int k = 0; k < size; k++) {
+        float s = buffer[k * sfinfo.channels];
+        buf[k] = s;
+      }
       // apply simple lowpass filtering to buf
       float *buf2 = lpf(buf);
       printf("%d\n", pitchdetect(buf2));
@@ -61,18 +71,18 @@ int main (int argc, char **argv) {
     sf_close(file);
   } else if (use_soundcard == 0) {
     // gotta allocate twice as much for stereo
+    // one frame contains both left and right channel
     size_t size = buflen * 2;
     int16_t buffer[size];
     memset(buffer, 0, size * sizeof(buffer[0]));
-    
-    int buffer_frames = buflen; // frame = sekä vasen että oikee kanava
     
     // catch ctrl+c to quit program nicely
     signal(SIGINT, int_handler);
     
     while (running) { 
-      buffer_from_soundcard(buffer, buffer_frames);
-      for(int k = 0; k < buffer_frames; k++) {
+      buffer_from_soundcard(buffer, buflen);
+      for(int k = 0; k < buflen; k++) {
+        printf("k = %d\n", k);
         // pick every other sample because it is stereo
         float s = (float)buffer[k * 2] / INT16_MAX;
         buf[k] = s;
