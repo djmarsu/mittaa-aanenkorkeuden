@@ -8,7 +8,7 @@
 
 extern snd_pcm_t *handle;
 
-int prepare_soundcard(char *device) {
+void prepare_soundcard(char *device) {
   int err;
 
   unsigned int rate = 44100;
@@ -80,6 +80,14 @@ int prepare_soundcard(char *device) {
              snd_strerror (err));
     exit(1);
   }
-
-  return 0;
 }
+
+void buffer_from_soundcard(int16_t *buffer, int buffer_frames) {
+  int err;
+  if ((err = snd_pcm_readi(handle, buffer, buffer_frames)) != buffer_frames) {
+    fprintf(stderr, "read from audio interface failed (%s)\n",
+             snd_strerror (err));
+    exit(1);
+  }
+}
+

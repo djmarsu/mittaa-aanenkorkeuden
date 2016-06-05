@@ -118,15 +118,9 @@ int main (int argc, char **argv) {
   SF_INFO sfinfo;
   char *filename;
 
-  // gotta allocate twice as much for stereo
-  size_t size = BUFLEN*2;
-  // vai uint16_t  
-  int16_t buffer[size];
-
-  memset(buffer, 0, size * sizeof(buffer[0]));
+  float buf[BUFLEN];
+  int count;
   
-  float flo[BUFLEN];
-
   int use_wav = -1;
   int use_soundcard = -1;
 
@@ -153,11 +147,7 @@ int main (int argc, char **argv) {
   int buffer_frames = BUFLEN; // frame = sekä vasen että oikee kanava
   int err;
 
-  if (use_wav == 0) {//riittääkö if(use_wav){
-    //  static void convert_to_text(SNDFILE *file) {
-    float buf[BUFLEN];
-    int count;
-
+  if (use_wav == 0) {
     // read file to float buffer
     // TODO: only works with mono files
     while ((count = sf_readf_float(file, buf, BUFLEN)) == BUFLEN) {
@@ -168,19 +158,21 @@ int main (int argc, char **argv) {
     sf_close(file);
   } else if (use_soundcard == 0) {
     signal(SIGINT, int_handler);
+
+    // gotta allocate twice as much for stereo
+    size_t size = BUFLEN*2;
+    // vai uint16_t  
+    int16_t buffer[size];
+    memset(buffer, 0, size * sizeof(buffer[0]));
+
     while (running) { 
-      if ((err = snd_pcm_readi(handle, buffer, buffer_frames)) != buffer_frames) {
-        fprintf(stderr, "read from audio interface failed (%s)\n",
-                 snd_strerror (err));
-        exit(1);
-      }
-  
+      buffer_from_soundcard(&buffer, buffer_frames);
       for(int k = 0; k < buffer_frames; k++) {
         // pick every other sample because it is stereo
         float s = (float)buffer[k * 2]/INT16_MAX;
-        flo[k] = s;
+        buf[k] = s;
       }
-      float *buf2 = lpf(flo);
+      float *buf2 = lpf(buf);
       printf("piste %d\n", pitchdetect(buf2)); 
     }
   }
