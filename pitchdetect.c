@@ -37,18 +37,16 @@ int pitchdetect(float *buf) {
   if (rms < 0.01)
     return -1;
 
-  int c = 0;
   int prev = 0;
   
   for (int j = 0; j < buflen; j++) {
-    // tapa 2
     int s = sign(buf[j]);
     if (s != prev)
-      c++;
+      count++;
     prev = s;
   }
 
-  float cyclecount = c / 2;
+  float cyclecount = count / 2;
 
   return round(cyclecount / secs);
 }

@@ -52,7 +52,7 @@ int main (int argc, char **argv) {
 
   if (use_wav == 0) {
     // read file to float buffer
-    size_t size = buflen * sfinfo.channels;
+    int size = buflen * sfinfo.channels;
     float buffer[size];
     if (sfinfo.frames < buflen) {
       fprintf(stderr, "wav file was too short\n");
@@ -72,7 +72,7 @@ int main (int argc, char **argv) {
   } else if (use_soundcard == 0) {
     // gotta allocate twice as much for stereo
     // one frame contains both left and right channel
-    size_t size = buflen * 2;
+    int size = buflen * 2;
     int16_t buffer[size];
     memset(buffer, 0, size * sizeof(buffer[0]));
     
