@@ -58,9 +58,8 @@ int main (int argc, char **argv) {
       fprintf(stderr, "wav file was too short\n");
       return 1;
     }
-
     while ((count = sf_readf_float(file, buffer, buflen)) == buflen) {
-      for(int k = 0; k < size; k++) {
+      for(int k = 0; k < buflen; k++) {
         float s = buffer[k * sfinfo.channels];
         buf[k] = s;
       }
