@@ -5,13 +5,7 @@
 
 #define M_PI 3.14159265358979323846
 
-static int foo = 0;
-static int bar = 0;
-static double dbar = 0.1;
-
 void test_setup() {
-	foo = 7;
-	bar = 4;
 }
 
 void test_teardown() {
@@ -29,7 +23,6 @@ MU_TEST(test_low_pass_filter) {
     mu_assert_float_eq(-0.87, buf2[2]);
     mu_assert_float_eq(-1.10, buf2[3]);
 }
-
 
 MU_TEST(test_pitchdetect_with_sine_wave) {
     float buf[buflen];
@@ -57,7 +50,6 @@ MU_TEST(test_pitchdetect_with_sine_wave) {
 
     mu_assert_int_within(1700, v, 10);
 }
-
 
 MU_TEST_SUITE(test_suite) {
 	MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
