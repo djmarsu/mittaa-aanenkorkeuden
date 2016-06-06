@@ -1,4 +1,6 @@
-static const int samplerate = 44100;
+#include <alsa/asoundlib.h>
+
+static unsigned int samplerate = 44100;
 
 // 5 guesses in one second
-static const int buflen = 8820;
+#define buflen 8820

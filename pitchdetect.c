@@ -5,11 +5,10 @@
 
 // simple low pass filter algorithm
 float *lpf(float *buf) {
-  float *out = buf;
-  //float out[buflen] = {0.0};
-  // initialize array
+  static float out[buflen];
+  // initialize array   
   out[0] = buf[0];
-
+  
   for (int i = 1; i < buflen; i++) {
     out[i] = buf[i] + buf[i - 1];
   }
@@ -54,8 +53,8 @@ int pitchdetect(float *buf) {
 
 void lpf_and_print(float *buf) {
   float *buf2 = lpf(buf);
-  
-  int hz = pitchdetect(buf2);
+
+  int hz = pitchdetect(buf);
   if (hz > 0) {
     printf("\r%d", hz);
   } else {

@@ -6,12 +6,13 @@
 #include <math.h>
 #include <alsa/asoundlib.h>
 
+#include "config.h"
+
 extern snd_pcm_t *handle;
 
 void prepare_soundcard(char *device) {
   int err;
 
-  unsigned int rate = 44100;
   snd_pcm_hw_params_t *hw_params;
   snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
 
@@ -51,7 +52,7 @@ void prepare_soundcard(char *device) {
   }
 
   // sets sample rate
-  if ((err = snd_pcm_hw_params_set_rate_near(handle, hw_params, &rate, 0)) < 0) {
+  if ((err = snd_pcm_hw_params_set_rate_near(handle, hw_params, &samplerate, 0)) < 0) {
     fprintf(stderr, "cannot set sample rate (%s)\n",
              snd_strerror (err));
     exit(1);
