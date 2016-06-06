@@ -190,6 +190,36 @@ static void (*minunit_teardown)(void) = NULL;
 	}\
 )
 
+#define mu_assert_float_eq(expected, result) MU__SAFE_BLOCK(\
+	float minunit_tmp_e;\
+	float minunit_tmp_r;\
+	minunit_assert++;\
+	minunit_tmp_e = (expected);\
+	minunit_tmp_r = (result);\
+	if (fabs(minunit_tmp_e-minunit_tmp_r) > MINUNIT_EPSILON) {\
+		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: %f expected but was %f", __func__, __FILE__, __LINE__, minunit_tmp_e, minunit_tmp_r);\
+		minunit_status = 1;\
+		return;\
+	} else {\
+		printf(".");\
+	}\
+)
+
+#define mu_assert_int_within(expected, result, delta) MU__SAFE_BLOCK(\
+  int minunit_tmp_e;\
+  int minunit_tmp_r;\
+  minunit_assert++;\
+  minunit_tmp_e = (expected);\
+  minunit_tmp_r = (result);\
+  if (!(minunit_tmp_r >= (minunit_tmp_e - delta) && minunit_tmp_r <= (minunit_tmp_e + delta))) {\
+    snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: %d not within [%d, %d]", __func__, __FILE__, __LINE__, minunit_tmp_e, minunit_tmp_r-delta, minunit_tmp_r+delta);\
+    minunit_status = 1;\
+    return;\
+  } else {\
+    printf(".");\
+  }\
+)
+
 /*
  * The following two functions were written by David Robert Nadeau
  * from http://NadeauSoftware.com/ and distributed under the
