@@ -1,4 +1,4 @@
 *.o
 *.swp
 mittaa-aanenkorkeuden
-unity_tests/all_tests.out
+test/test
