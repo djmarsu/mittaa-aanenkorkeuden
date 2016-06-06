@@ -21,6 +21,7 @@ int sign(float x) {
   return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
 }
 
+// zero-crossing algorithm
 int pitchdetect(float *buf) {
   // count of zero crossings
   int count = 0;

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+// check if commandline argument ends with .wav
 int check_if_wav(char *str) {
   int len = strlen(str);
 
@@ -18,6 +19,7 @@ int check_if_wav(char *str) {
   return 0;
 }
 
+// check if commmandline argument starts with hw:
 int check_if_device(char *str) {
   int len = strlen(str);
 
