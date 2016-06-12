@@ -1,4 +1,4 @@
-SRC_FILES = tests.c ../pitchdetect.c
+SRC_FILES = tests.c ../pitchdetect.c ../params.c
 
 all: test
 
