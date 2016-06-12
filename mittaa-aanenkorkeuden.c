@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <sndfile.h>
 #include <stdint.h> 
 #include <signal.h>
 #include <alsa/asoundlib.h>
@@ -12,6 +11,21 @@
 snd_pcm_t *handle = NULL;
 static volatile int running = 1;
 
+struct wavfile {
+  char id[4];
+  int totallength;
+  char wavefmt[8];
+  int format;
+  short pcm;
+  short channels;
+  int frequency;
+  int bytes_per_second;
+  short bytes_by_capture;
+  short bits_per_sample;
+  char data[4];
+  int bytes_in_data;
+};
+
 // whatto do when press ^C
 void int_handler(int dummy) {
     // is this the wrong way around
@@ -20,8 +34,8 @@ void int_handler(int dummy) {
 }
 
 int main (int argc, char **argv) {
-  SNDFILE *file = NULL;
-  SF_INFO sfinfo;
+  FILE *fp;
+  struct wavfile header;
   char *filename;
 
   float buf[buflen];
@@ -38,37 +52,52 @@ int main (int argc, char **argv) {
   filename = argv[1];
 
   if ((use_wav = ends_with(".wav", filename)) == 0) {
-    memset(&sfinfo, 0, sizeof(sfinfo));
-
-    if ((file = sf_open(filename, SFM_READ, &sfinfo)) == NULL) {
-      fprintf(stderr, "Not able to open input file %s.\n", filename);
-      return 1;
+    fp = fopen(filename,"rb");
+    if (fp == NULL) {
+        fprintf(stderr, "Not able to open input file %s.\n", filename);
+        return 1;
     }
-  } else if ((use_soundcard = starts_with("hw:", filename)) == 0) {
-    prepare_soundcard(filename);
-  } else {
-    usage();
-  }
 
-  if (use_wav == 0) {
+    // read header
+    if (fread(&header, sizeof(header), 1, fp) < 1) {
+        fprintf(stderr, "Can't read file header\n");
+        return 1;
+    }
+
+    if (strncmp(header.id, "RIFF", 4) != 0 ||
+        strncmp(header.data, "data", 4) != 0 ||
+        strncmp(header.wavefmt, "WAVEfmt", 7) != 0) {
+        fprintf(stderr, "file is not wav\n"); 
+        return 1;
+    }
+
+    printf("header.format = %d\n", header.format);
+
     // read file to float buffer
-    int size = buflen * sfinfo.channels;
-    float buffer[size];
-    if (sfinfo.frames < buflen) {
+    int size = buflen * header.channels;
+    int16_t buffer[size];
+    
+    // onkohan tää oikein
+    if (header.bytes_in_data < buflen) {
       fprintf(stderr, "wav file was too short\n");
       return 1;
     }
-    while ((count = sf_readf_float(file, buffer, buflen)) == buflen) {
+
+    int err;
+    while (fread(buffer, sizeof(buffer), 1, fp)) {
       for(int k = 0; k < buflen; k++) {
-        float s = buffer[k * sfinfo.channels];
+        float s = buffer[k * header.channels] / 32767.0;
         buf[k] = s;
       }
       // apply simple lowpass filtering to buf
       float *buf2 = lpf(buf);
       printf("%d\n", pitchdetect(buf2));
     }
-    sf_close(file);
-  } else if (use_soundcard == 0) {
+    fclose(fp);
+
+  } else if ((use_soundcard = starts_with("hw:", filename)) == 0) {
+    prepare_soundcard(filename);
+
     // gotta allocate twice as much for stereo
     // one frame contains both left and right channel
     int size = buflen * 2;
@@ -89,6 +118,8 @@ int main (int argc, char **argv) {
       // apply lowpass filtering and print the result
       lpf_and_print(buf);
     }
+  } else {
+    usage();
   }
 
   return 0;
