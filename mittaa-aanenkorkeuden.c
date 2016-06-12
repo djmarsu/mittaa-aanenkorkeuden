@@ -29,7 +29,9 @@ struct wavfile {
 // whatto do when press ^C
 void int_handler(int dummy) {
     // is this the wrong way around
-    snd_pcm_close(handle);                                                      
+
+    // tähän joku juttu että ei koita sulkea äänikorttia jos käytetään wavia
+    snd_pcm_close(handle);
     running = 0;
 }
 
@@ -43,6 +45,7 @@ int main (int argc, char **argv) {
   
   int use_wav = -1;
   int use_soundcard = -1;
+  int channels;
 
   // no need for -f and -d switches
   if (argc != 2) {
@@ -71,56 +74,51 @@ int main (int argc, char **argv) {
         return 1;
     }
 
-    printf("header.format = %d\n", header.format);
+    channels = header.channels;
 
-    // read file to float buffer
-    int size = buflen * header.channels;
-    int16_t buffer[size];
-    
-    // onkohan tää oikein
+    // onkohan tää oikein, vai pitääkö jakaa kanavien määrällä tmv
     if (header.bytes_in_data < buflen) {
       fprintf(stderr, "wav file was too short\n");
       return 1;
     }
-
-    int err;
-    while (fread(buffer, sizeof(buffer), 1, fp)) {
-      for(int k = 0; k < buflen; k++) {
-        float s = buffer[k * header.channels] / 32767.0;
-        buf[k] = s;
-      }
-      // apply simple lowpass filtering to buf
-      float *buf2 = lpf(buf);
-      printf("%d\n", pitchdetect(buf2));
-    }
-    fclose(fp);
-
   } else if ((use_soundcard = starts_with("hw:", filename)) == 0) {
     prepare_soundcard(filename);
-
-    // gotta allocate twice as much for stereo
-    // one frame contains both left and right channel
-    int size = buflen * 2;
-    int16_t buffer[size];
-    memset(buffer, 0, size * sizeof(buffer[0]));
+    channels = 2; // pakko olla mun äänikortilla
     
-    // catch ctrl+c to quit program nicely
-    signal(SIGINT, int_handler);
-    
-    while (running) { 
-      buffer_from_soundcard(buffer, buflen);
-      for(int k = 0; k < buflen; k++) {
-        printf("k = %d\n", k);
-        // pick every other sample because it is stereo
-        float s = (float)buffer[k * 2] / INT16_MAX;
-        buf[k] = s;
-      }
-      // apply lowpass filtering and print the result
-      lpf_and_print(buf);
-    }
   } else {
     usage();
   }
+
+  // gotta allocate twice as much for stereo
+  // one frame contains both left and right channel
+  int size = buflen * channels;
+  int16_t buffer[size];
+
+  // catch ctrl+c to quit program nicely
+  signal(SIGINT, int_handler);
+            
+  while (running) {
+    // read file to float buffera
+    if (use_soundcard == 0) {
+      buffer_from_soundcard(buffer, buflen);
+    } else if (use_wav == 0) {
+      // onko oikea vertailu?
+      if ((fread(buffer, sizeof(buffer), 1, fp)) != 1) {
+        break;
+      }
+    }
+    for(int k = 0; k < buflen; k++) {
+      float s = (float)buffer[k * header.channels] / INT16_MAX;
+      buf[k] = s;
+    }
+ 
+    // apply simple lowpass filtering to buf
+    float *buf2 = lpf(buf);
+    printf("%d\n", pitchdetect(buf2));
+  /////////////////  lpf_and_print(buf);
+  }
+
+  fclose(fp);
 
   return 0;
 }
