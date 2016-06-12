@@ -3,33 +3,23 @@
 #include <string.h>
 
 // check if commandline argument ends with .wav
-int check_if_wav(char *str) {
+int ends_with(char *end, char *str) {
   int len = strlen(str);
+  int endlen = strlen(end);
+  const char *end_of_str = &str[len - endlen];
 
-  // got to have at least 5 characters, eg. j.wav
-  if (len < 5)
-    return -1;
-
-  const char *last_four = &str[len - 4];
-  char *whattolookfor = ".wav";
-
-  if (strncmp(last_four, whattolookfor, 4) != 0)
+  if (strncmp(end_of_str, end, endlen) != 0)
     return -1;
 
   return 0;
 }
 
 // check if commmandline argument starts with hw:
-int check_if_device(char *str) {
+int starts_with(char *start, char *str) {
   int len = strlen(str);
+  int startlen = strlen(start);  
 
-  // got to have at least 4 characters, eg. hw:1
-  if (len < 4)
-    return -1;
-
-  char *whattolookfor = "hw:";
-
-  if (strncmp(str, whattolookfor, 3) != 0)
+  if (strncmp(str, start, startlen) != 0)
     return -1;
 
   return 0;

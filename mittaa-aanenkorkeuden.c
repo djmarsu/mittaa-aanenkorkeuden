@@ -37,14 +37,14 @@ int main (int argc, char **argv) {
 
   filename = argv[1];
 
-  if ((use_wav = check_if_wav(filename)) == 0) {
+  if ((use_wav = ends_with(".wav", filename)) == 0) {
     memset(&sfinfo, 0, sizeof(sfinfo));
 
     if ((file = sf_open(filename, SFM_READ, &sfinfo)) == NULL) {
       fprintf(stderr, "Not able to open input file %s.\n", filename);
       return 1;
     }
-  } else if ((use_soundcard = check_if_device(filename)) == 0) {
+  } else if ((use_soundcard = starts_with("hw:", filename)) == 0) {
     prepare_soundcard(filename);
   } else {
     usage();
