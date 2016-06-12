@@ -108,7 +108,7 @@ int main (int argc, char **argv) {
       }
     }
     for(int k = 0; k < buflen; k++) {
-      float s = (float)buffer[k * header.channels] / INT16_MAX;
+      float s = (float)buffer[k * channels] / INT16_MAX;
       buf[k] = s;
     }
  
