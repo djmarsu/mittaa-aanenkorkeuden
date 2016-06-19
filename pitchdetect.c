@@ -32,7 +32,7 @@ int count_zerocrossings(float *buf) {
   return count;
 }
 
-float rms(float *buf) {
+float rms_volume(float *buf) {
   float rms = 0;
   for (int j = 0; j < buflen; j++) {
     rms += buf[j] * buf[j];
@@ -47,8 +47,8 @@ int pitchdetect(float *buf) {
   float secs = (float) buflen / samplerate;
 
   // check if there is enough signal
-  float rmsf = rms(buf);
-  if (rmsf < 0.01)
+  float rms = rms_volume(buf);
+  if (rms < 0.01)
     return -1;
 
   int count = count_zerocrossings(buf); 
@@ -58,6 +58,7 @@ int pitchdetect(float *buf) {
   return round(cyclecount / secs);
 }
 
+/*
 void lpf_and_print(float *buf) {
   float *buf2 = lpf(buf);
 
@@ -69,3 +70,4 @@ void lpf_and_print(float *buf) {
   }
   fflush(stdout);
 }
+*/
