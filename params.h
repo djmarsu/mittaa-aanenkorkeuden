@@ -1,8 +1,8 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
-int check_if_wav(char *str);
-int check_if_device(char *str);
+int ends_with(char *str);
+int starts_with(char *str);
 void usage();
 
 #endif
