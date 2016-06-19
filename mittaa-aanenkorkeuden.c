@@ -41,11 +41,10 @@ int main (int argc, char **argv) {
   char *filename;
 
   float buf[buflen];
-  int count;
-  
+  int channels;
+
   int use_wav = -1;
   int use_soundcard = -1;
-  int channels;
 
   // no need for -f and -d switches
   if (argc != 2) {
@@ -55,7 +54,7 @@ int main (int argc, char **argv) {
   filename = argv[1];
 
   if ((use_wav = ends_with(".wav", filename)) == 0) {
-    fp = fopen(filename,"rb");
+    fp = fopen(filename, "rb");
     if (fp == NULL) {
         fprintf(stderr, "Not able to open input file %s.\n", filename);
         return 1;
@@ -76,15 +75,14 @@ int main (int argc, char **argv) {
 
     channels = header.channels;
 
-    // onkohan tää oikein, vai pitääkö jakaa kanavien määrällä tmv
-    if (header.bytes_in_data < buflen) {
+    int frames = header.bytes_in_data / channels / 2;
+    if (frames < buflen) {
       fprintf(stderr, "wav file was too short\n");
       return 1;
     }
   } else if ((use_soundcard = starts_with("hw:", filename)) == 0) {
     prepare_soundcard(filename);
     channels = 2; // pakko olla mun äänikortilla
-    
   } else {
     usage();
   }
@@ -107,8 +105,8 @@ int main (int argc, char **argv) {
         break;
       }
     }
-    for(int k = 0; k < buflen; k++) {
-      float s = (float)buffer[k * channels] / INT16_MAX;
+    for (int k = 0; k < buflen; k++) {
+      float s = (float) buffer[k * channels] / INT16_MAX;
       buf[k] = s;
     }
  
