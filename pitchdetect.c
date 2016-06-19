@@ -32,18 +32,23 @@ int count_zerocrossings(float *buf) {
   return count;
 }
 
+float rms(float *buf) {
+  float rms = 0;
+  for (int j = 0; j < buflen; j++) {
+    rms += buf[j] * buf[j];
+  }
+  rms = sqrt(rms / buflen);
+  return rms;
+}
+
 // zero-crossing algorithm
 int pitchdetect(float *buf) {
   // buffer's length in seconds
   float secs = (float) buflen / samplerate;
 
   // check if there is enough signal
-  float rms = 0;
-  for (int j = 0; j < buflen; j++) {
-    rms += buf[j] * buf[j];
-  }
-  rms = sqrt(rms / buflen);
-  if (rms < 0.01)
+  float rmsf = rms(buf);
+  if (rmsf < 0.01)
     return -1;
 
   int count = count_zerocrossings(buf); 

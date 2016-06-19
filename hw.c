@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <sndfile.h>
 #include <stdint.h> 
 #include <signal.h>
 #include <math.h>
