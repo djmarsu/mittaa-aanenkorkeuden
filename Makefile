@@ -1,6 +1,6 @@
 NAME = mittaa-aanenkorkeuden
 
-SRC = ${NAME}.c hw.c pitchdetect.c params.c
+SRC = ${NAME}.c hw.c pitchdetect.c params.c freqandpitch.c
 
 OBJ = ${SRC:.c=.o}
 

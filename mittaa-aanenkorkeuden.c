@@ -114,8 +114,13 @@ int main (int argc, char **argv) {
  
     // apply simple lowpass filtering to buf
     float *buf2 = lpf(buf);
-    printf("%d\n", pitchdetect(buf2));
-  /////////////////  lpf_and_print(buf);
+    int freq = pitchdetect(buf2);
+
+    if (print_pitch == 1) {
+      pretty_print_pitch(freq);
+    } else {
+      printf("%d\n", freq);
+    }
   }
 
   fclose(fp);

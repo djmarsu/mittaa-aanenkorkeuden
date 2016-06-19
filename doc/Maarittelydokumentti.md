@@ -15,4 +15,4 @@ Lähteet
 -------
 https://en.wikipedia.org/wiki/Zero-crossing_rate
 http://kom.aau.dk/group/05gr506/report/node27.html
-
+http://www.sju.edu/~rhall/SoundingNumber/pitch_and_frequency.pdf
