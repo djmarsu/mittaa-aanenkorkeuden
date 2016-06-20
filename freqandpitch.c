@@ -34,7 +34,7 @@ int get_octave(int p_rounded, float cents_off) {
 void pretty_print_pitch(int hz) {
   float p = frequency_to_pitch(hz);
 
-  int midinumber = midinumb(p);
+  int midinumber = abs(midinumb(p));
   
   float cents_off = get_cents_off(p);
 
