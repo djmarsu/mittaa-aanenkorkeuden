@@ -7,6 +7,7 @@
 #include "hw.h"
 #include "pitchdetect.h"
 #include "params.h"
+#include "freqandpitch.h"
 
 snd_pcm_t *handle = NULL;
 static volatile int running = 1;
