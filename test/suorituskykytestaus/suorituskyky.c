@@ -101,13 +101,15 @@ int main (int argc, char **argv) {
     float s = (float) buflen/ samplerate;
     printf("Time elapsed to read %d samples (%f seconds): %ld.%06ld\n", buflen, s, (long int)tval_result.tv_sec, (long int)tval_result.tv_usec);
 
-    time_in_usec += 1000 * (long int)tval_result.tv_sec;
+    time_in_usec += (long int)tval_result.tv_sec / 1000;
     time_in_usec += (long int)tval_result.tv_usec;
     c++;
   }
 
   double average_time = time_in_usec / c;
-  printf("In average: %ld %d %lf\n", time_in_usec, c, average_time);
+  average_time /= 1000;
+  average_time /= 1000;
+  printf("In average: %lf sekuntia\n", average_time);
 
   fclose(fp);
 
