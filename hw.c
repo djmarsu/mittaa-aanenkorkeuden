@@ -9,6 +9,7 @@
 
 extern snd_pcm_t *handle;
 
+// määrittelee äänikortille parametrit mitä käytetään
 void prepare_soundcard(char *device) {
   int err;
 
@@ -82,6 +83,8 @@ void prepare_soundcard(char *device) {
   }
 }
 
+// hakee äänikortilta buffer_frames kokoisen määrän bufferia ja tallentaa sen
+// parametrina välitettyyn taulukkoon buffer
 void buffer_from_soundcard(int16_t *buffer, int buffer_frames) {
   int err;
   if ((err = snd_pcm_readi(handle, buffer, buffer_frames)) != buffer_frames) {

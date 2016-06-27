@@ -16,10 +16,13 @@ float *lpf(float *buf) {
   return out;
 }
 
+// palauttaa liukuluvun etumerkin
+// 1 jos positiivinen, -1 jos negatiivinen, muuten palauttaa 0
 int sign(float x) {
   return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
 }
 
+// laskee kuinka monta kertaa etumerkki vaihtuu taulukossa
 int count_zerocrossings(float *buf) {
   int count = 0;
   int prev = 0;
@@ -32,6 +35,7 @@ int count_zerocrossings(float *buf) {
   return count;
 }
 
+// laskee neliöllisen keskiarvon taulukolle
 float rms_volume(float *buf) {
   float rms = 0;
   for (int j = 0; j < buflen; j++) {
@@ -57,17 +61,3 @@ int pitchdetect(float *buf) {
 
   return round(cyclecount / secs);
 }
-
-/*
-void lpf_and_print(float *buf) {
-  float *buf2 = lpf(buf);
-
-  int hz = pitchdetect(buf);
-  if (hz > 0) {
-    printf("\r%d", hz);
-  } else {
-    printf("\r..........");
-  }
-  fflush(stdout);
-}
-*/

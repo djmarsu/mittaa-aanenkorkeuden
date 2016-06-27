@@ -1,20 +1,13 @@
+#define _BSD_SOURCE
 #include <stdio.h>
 #include <stdint.h> 
-#include <signal.h>
 #include <string.h>
-#include <alsa/asoundlib.h>
+#include <sys/time.h>
 
-#include "config.h"
-#include "hw.h"
-#include "pitchdetect.h"
-#include "params.h"
-#include "freqandpitch.h"
-
-snd_pcm_t *handle = NULL;
-static volatile int running = 1;
-
-static volatile int use_wav = -1;
-static volatile int use_soundcard = -1;
+#include "../config.h"
+#include "../pitchdetect.h"
+#include "../params.h"
+#include "../freqandpitch.h"
 
 struct wavfile {
   char id[4];
@@ -31,20 +24,6 @@ struct wavfile {
   int bytes_in_data;
 };
 
-// käsittelee keskeytyksen
-// whatto do when press ^C
-void int_handler(int dummy) {
-    if (use_soundcard == 0) {
-      snd_pcm_close(handle);
-    }
-
-    // ei tarvitse erikseen fclosea käyttää jos use_soundcard = 0,
-    // sillä fclose kutsutaan mainin lopussa joka tapauksessa, riittää 
-    // riittää siis että asetetaan running:n arvoksi 0
-
-    running = 0;
-}
-
 int main (int argc, char **argv) {
   FILE *fp;
   struct wavfile header;
@@ -53,7 +32,9 @@ int main (int argc, char **argv) {
   float buf[buflen];
   int channels;
 
-  // no need for commandline -f and -d switches (file/device)
+  int use_wav = -1;
+
+  // no need for -f and -d switches
   if (argc != 2) {
     usage();
   }
@@ -73,7 +54,6 @@ int main (int argc, char **argv) {
         return 1;
     }
 
-    // tarkitaa että wav-tiedosto varmasti on wav
     if (strncmp(header.id, "RIFF", 4) != 0 ||
         strncmp(header.data, "data", 4) != 0 ||
         strncmp(header.wavefmt, "WAVEfmt", 7) != 0) {
@@ -88,48 +68,36 @@ int main (int argc, char **argv) {
       fprintf(stderr, "wav file was too short\n");
       return 1;
     }
-  } else if ((use_soundcard = starts_with("hw:", filename)) == 0) {
-    prepare_soundcard(filename);
-    channels = 2; // pakko olla mun äänikortilla
   } else {
     usage();
   }
 
-  // gotta allocate twice as much for stereo
-  // one frame contains both left and right channel
   int size = buflen * channels;
   int16_t buffer[size];
 
-  // catch ctrl+c to quit program nicely
-  signal(SIGINT, int_handler);
-            
-  while (running) {
-    if (use_soundcard == 0) {
-      // read from alsa device to float buffer
-      buffer_from_soundcard(buffer, buflen);
-    } else if (use_wav == 0) {
-      // read file to float buffer
+  while (1) {
+    struct timeval tval_before, tval_after, tval_result;
+    gettimeofday(&tval_before, NULL);
+
+    if (use_wav == 0) {
       if ((fread(buffer, sizeof(buffer), 1, fp)) != 1) {
         break;
       }
     }
-
-    // muuttaa taulukon arvot välille [-1, 1] jotta niille voidaan tehdä 
-    // signaalinkäsittelyjuttuja
     for (int k = 0; k < buflen; k++) {
       float s = (float) buffer[k * channels] / INT16_MAX;
       buf[k] = s;
     }
  
-    // apply simple lowpass filtering to buf
     float *buf2 = lpf(buf);
     int freq = pitchdetect(buf2);
 
-    if (print_pitch == 1) {
-      pretty_print_pitch(freq);
-    } else {
-      printf("%d\n", freq);
-    }
+    printf("%d\n", freq);
+    gettimeofday(&tval_after, NULL);
+
+    timersub(&tval_after, &tval_before, &tval_result);
+    float s = (float) buflen/ samplerate;
+    printf("Time elapsed to read %d samples (%f seconds): %ld.%06ld\n", buflen, s, (long int)tval_result.tv_sec, (long int)tval_result.tv_usec);
   }
 
   fclose(fp);
