@@ -4,10 +4,10 @@
 #include <string.h>
 #include <sys/time.h>
 
-#include "../config.h"
-#include "../pitchdetect.h"
-#include "../params.h"
-#include "../freqandpitch.h"
+#include "../../config.h"
+#include "../../pitchdetect.h"
+#include "../../params.h"
+#include "../../freqandpitch.h"
 
 struct wavfile {
   char id[4];
@@ -75,6 +75,8 @@ int main (int argc, char **argv) {
   int size = buflen * channels;
   int16_t buffer[size];
 
+  int c = 0;
+  long int time_in_usec = 0;
   while (1) {
     struct timeval tval_before, tval_after, tval_result;
     gettimeofday(&tval_before, NULL);
@@ -98,7 +100,14 @@ int main (int argc, char **argv) {
     timersub(&tval_after, &tval_before, &tval_result);
     float s = (float) buflen/ samplerate;
     printf("Time elapsed to read %d samples (%f seconds): %ld.%06ld\n", buflen, s, (long int)tval_result.tv_sec, (long int)tval_result.tv_usec);
+
+    time_in_usec += 1000 * (long int)tval_result.tv_sec;
+    time_in_usec += (long int)tval_result.tv_usec;
+    c++;
   }
+
+  double average_time = time_in_usec / c;
+  printf("In average: %ld %d %lf\n", time_in_usec, c, average_time);
 
   fclose(fp);
 

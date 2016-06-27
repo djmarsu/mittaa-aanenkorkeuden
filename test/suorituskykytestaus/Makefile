@@ -1,6 +1,6 @@
 NAME = suorituskyky
 
-SRC = ${NAME}.c ../pitchdetect.c ../params.c ../freqandpitch.c
+SRC = ${NAME}.c ../../pitchdetect.c ../../params.c ../../freqandpitch.c
 
 OBJ = ${SRC:.c=.o}
 
